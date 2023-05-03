@@ -1,0 +1,22 @@
+const mongoose = require('mongoose')
+const { mongopath } = require('../config/config.default')
+async function main() {
+  await mongoose.connect(mongopath)
+}
+
+main()
+  .then(res => {
+  console.log('mongo链接成功');
+  })
+  .catch(err => {
+  console.log('mongo链接失败');
+  })
+
+module.exports = {
+  User: mongoose.model('User', require('./userModel')),
+  Address: mongoose.model('Address', require('./addressModel')),
+  // Subscribe: mongoose.model('Subscribe', require('./subscribeModel')),
+  // Videocomment: mongoose.model('Videocomment', require('./videocommentModel')),
+  // Videolike: mongoose.model('Videolike', require('./videolikeModel')),
+  // CollectModel: mongoose.model('CollectModel', require('./collectModel')),
+}
