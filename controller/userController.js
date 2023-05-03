@@ -102,7 +102,7 @@ exports.getApplyList = async (req, res) => {
         res.send(httpModel.success(dbBack))
       }
     } else {
-      res.status(500).send(httpModel.error('您无权限'))
+      return res.status(500).send(httpModel.error('您无权限'))
     }
   } catch (error) {
     res.status(500).send(httpModel.error())

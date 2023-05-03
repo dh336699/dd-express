@@ -15,8 +15,8 @@ main()
 module.exports = {
   User: mongoose.model('User', require('./userModel')),
   Address: mongoose.model('Address', require('./addressModel')),
-  // Subscribe: mongoose.model('Subscribe', require('./subscribeModel')),
-  // Videocomment: mongoose.model('Videocomment', require('./videocommentModel')),
-  // Videolike: mongoose.model('Videolike', require('./videolikeModel')),
+  Menu: mongoose.model('Menu', require('./menuModel')),
+  MenuGoods: mongoose.model('MenuGoods', require('./menuGoodsModel')),
+  Goods: mongoose.model('Goods', require('./goodsModel')),
   // CollectModel: mongoose.model('CollectModel', require('./collectModel')),
 }

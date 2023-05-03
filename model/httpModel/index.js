@@ -9,12 +9,11 @@ class HttpModel {
     }
   }
 
-  error(err) {
+  error(msg) {
     return {
       code: 500,
       data: {},
-      err,
-      msg: '请求失败，请稍后再试'
+      msg: msg || '请求失败，请稍后再试'
     }
   }
 }
