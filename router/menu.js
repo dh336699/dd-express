@@ -7,6 +7,8 @@ const { verifyToken } = require('../util/jwt')
 router
   .get('/menuList', verifyToken(), menuController.getMenuList)
   .post('/menuList', verifyToken(), menuController.createMenu)
+  .get('/menuGoods/:id', verifyToken(), menuController.getMenuGoods)
+  .post('/menuGoods', verifyToken(), menuController.createMenuGoods)
   .get('/goodsList', verifyToken(), menuController.getGoodsList)
   .post('/goodsList', verifyToken(), menuController.createGoods)
   .put('/goodsList', verifyToken(), menuController.updateGoods)

@@ -1,3 +1,4 @@
+const { isEmpty } = require('lodash')
 const { Menu, MenuGoods, Goods } = require('../model')
 const { HttpModel } = require('../model/httpModel')
 const httpModel = new HttpModel()
@@ -25,6 +26,40 @@ exports.createMenu = async (req, res) => {
     }
     
   } catch (error) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
+exports.getMenuGoods = async (req, res) => {
+  try {
+    const id = req.params.id
+    const data = await MenuGoods.find({ menuId: id })
+    res.send(httpModel.success(data))
+  } catch (error) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
+
+exports.createMenuGoods = async (req, res) => {
+ try {
+    const { menuName, menuId, goodsIdList } = req.body
+    const dbBack = await Menu.findOne({ menuName })
+    if (isEmpty(dbBack)) {
+      console.log(dbBack);
+      return res.status(500).send(httpModel.error('当前菜单已被删除'))
+    }
+    const menuGoods = await MenuGoods.find({ menuId })
+    if (!isEmpty(menuGoods)) {
+      menuGoods.forEach(async item => await item.remove())
+    }
+
+    goodsIdList.forEach(async (item) => {
+      const bk = await new MenuGoods({ menuName, menuId, goodsId: item })
+      await bk.save()
+    })
+    res.send(httpModel.success())
+  } catch(error) {
     res.status(500).send(httpModel.error())
   }
 }
@@ -74,26 +109,4 @@ exports.deleteGoods = async (req, res) => {
   } catch (err) {
     res.status(500).send(httpModel.error())
   }
-}
-exports.optMenuGoods = async (req, res) => {
-  try {
-    const { menuName, menuId, goodsIdList } = req.body
-    const dbBack = await Menu.findOne({ menuName })
-    if (!dbBack) {
-      res.status(500).send(httpModel.error('当前菜单已被删除'))
-    }
-    const menuGoods = await MenuGoods.find({ menuId })
-    if (menuGoods) {
-      await menuGoods.remove()
-    } else {
-      goodsIdList.forEach(async (item) => {
-        const bk = await new MenuGoods({ menuName, menuId, goodsId: item })
-        await bk.save()
-      })
-    }
-    res.send(httpModel.success())
-  } catch(error) {
-    res.status(500).send(httpModel.error())
-  }
-
 }
