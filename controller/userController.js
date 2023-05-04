@@ -1,22 +1,55 @@
 const fs = require('fs')
-const { promisify } = require('util')
-const { omit, includes } = require("lodash")
+const {
+  promisify
+} = require('util')
+const {
+  omit,
+  includes
+} = require("lodash")
 
-const { User, Address } = require('../model')
-const { createToken } = require('../util/jwt')
-const { wxHttp } = require("../util/http")
-const { HttpModel } = require('../model/httpModel')
-const { adminList, managerList } = require('../config/config.default.js')
+const {
+  User,
+  Address
+} = require('../model')
+const {
+  createToken
+} = require('../util/jwt')
+const {
+  wxHttp
+} = require("../util/http")
+const {
+  HttpModel
+} = require('../model/httpModel')
+const {
+  adminList,
+  managerList
+} = require('../config/config.default.js')
 const httpModel = new HttpModel()
 const rename = promisify(fs.rename)
 
 exports.wxLogin = async (req, res) => {
   try {
-    const { code } = req.body;
-    const { data } = await wxHttp.get({ url: '/sns/jscode2session', params: { appid: 'wx3b501070e74761c3', secret: 'f062ad74f7f1b90527df84dd6402e4c9', js_code: code, grant_type: 'authorization_code' } })
-    let userInfo = await User.findOne({ openId: data.openid })
+    const {
+      code
+    } = req.body;
+    const {
+      data
+    } = await wxHttp.get({
+      url: '/sns/jscode2session',
+      params: {
+        appid: 'wx3b501070e74761c3',
+        secret: '3f9a7309eb9cbe421c9089e68ea34839',
+        js_code: code,
+        grant_type: 'authorization_code'
+      }
+    })
+    let userInfo = await User.findOne({
+      openId: data.openid
+    })
     if (!userInfo) {
-      const userModel = new User({ openId: data.openid })
+      const userModel = new User({
+        openId: data.openid
+      })
       userInfo = await userModel.save()
     }
     if (includes(adminList, data.openid) || userInfo.userName === 'super_admin336699') {
@@ -27,16 +60,21 @@ exports.wxLogin = async (req, res) => {
     }
     const token = await createToken(userInfo)
     res.send(httpModel.success(token))
-  } catch(err) {
+  } catch (err) {
     res.status(500).send(httpModel.error())
   }
 }
 
 exports.updateUserInfo = async (req, res) => {
   try {
-    userInfo = { ...req.userInfo, ...req.body }
+    userInfo = {
+      ...req.userInfo,
+      ...req.body
+    }
     const id = userInfo._id
-    const data = await User.findByIdAndUpdate(id, userInfo, { new: true })
+    const data = await User.findByIdAndUpdate(id, userInfo, {
+      new: true
+    })
     res.send(httpModel.success(data))
   } catch (err) {
     res.status(500).send(httpModel.error())
@@ -45,22 +83,31 @@ exports.updateUserInfo = async (req, res) => {
 
 exports.getAddress = async (req, res) => {
   try {
-    let { userInfo } = req
-    const addressList = await Address.find({ userId: userInfo._id })
+    let {
+      userInfo
+    } = req
+    const addressList = await Address.find({
+      userId: userInfo._id
+    })
     res.send(httpModel.success(addressList))
-  } catch(err) {
+  } catch (err) {
     res.status(500).send(httpModel.error())
   }
 }
 
 exports.addAddress = async (req, res) => {
   try {
-    let { userInfo } = req
-    const data = { userId: userInfo._id, ...omit(req.body, 'userInfo') }
+    let {
+      userInfo
+    } = req
+    const data = {
+      userId: userInfo._id,
+      ...omit(req.body, 'userInfo')
+    }
     const addressModel = await new Address(data)
     await addressModel.save()
     res.send(httpModel.success())
-  } catch(err) {
+  } catch (err) {
     res.status(500).send(httpModel.error())
   }
 }
@@ -68,10 +115,12 @@ exports.addAddress = async (req, res) => {
 exports.updateAddress = async (req, res) => {
   try {
     const id = req.body._id
-    await Address.findByIdAndUpdate(id, req.body, { new: true })
-    
+    await Address.findByIdAndUpdate(id, req.body, {
+      new: true
+    })
+
     res.send(httpModel.success())
-  } catch(err) {
+  } catch (err) {
     res.status(500).send(httpModel.error())
   }
 }
@@ -89,12 +138,18 @@ exports.deleteAddress = async (req, res) => {
 
 exports.getApplyList = async (req, res) => {
   try {
-    const { userInfo } = req
-    const { type } = req.query
+    const {
+      userInfo
+    } = req
+    const {
+      type
+    } = req.query
     if (userInfo.isAdmin || userInfo.isManager) {
       if (type === 'apply') {
-        let dbBack = await User.find({ orderAuth: 'init' })
-        // dbBack = dbBack.filter(item => !adminList.includes(item.openId) && !managerList.includes(item.openId))
+        let dbBack = await User.find({
+          orderAuth: 'init'
+        })
+        dbBack = dbBack.filter(item => !adminList.includes(item.openId) && !managerList.includes(item.openId))
         res.send(httpModel.success(dbBack))
       } else {
         let dbBack = await User.find()
@@ -110,7 +165,9 @@ exports.getApplyList = async (req, res) => {
 }
 
 exports.getUserInfo = async (req, res) => {
-  let { userInfo } = req
+  let {
+    userInfo
+  } = req
   Reflect.deleteProperty(userInfo, 'openId')
   res.send(httpModel.success(userInfo))
 }
@@ -230,9 +287,13 @@ exports.headimg = async (req, res) => {
   const fileType = fileArr[fileArr.length - 1]
   try {
     await rename('./public/' + req.file.filename,
-    './public/' + req.file.filename + '.' + fileType)
-    res.status(201).json({ filepath: req.file.filename + '.' + fileType })
+      './public/' + req.file.filename + '.' + fileType)
+    res.status(201).json({
+      filepath: req.file.filename + '.' + fileType
+    })
   } catch (error) {
-    res.status(500).json({ error })
+    res.status(500).json({
+      error
+    })
   }
 }

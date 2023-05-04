@@ -5,14 +5,18 @@ const router = require('./router')
 
 const app = express()
 
-app.use(express.json({ extended: false }))
-app.use(express.urlencoded({ extended: false }))
+app.use(express.json({
+  extended: false
+}))
+app.use(express.urlencoded({
+  extended: false
+}))
 app.use(express.static('public')) // 静态资源处理
 app.use(cors())
 app.use(morgan('dev'))
 app.use('/api/v1', router)
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 8081
 
 // // 挂载路由
 // app.use('/api', router)

@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const baseModel = require('./baseModel')
 
 const menuGoodsSchema = new mongoose.Schema({
-  menuId: {
+  menu: {
     type: mongoose.ObjectId,
     required: true,
     ref: 'Menu'
@@ -11,11 +11,13 @@ const menuGoodsSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  goodsId: {
-    type: mongoose.ObjectId,
-    required: true,
-    ref: 'Goods'
-  },
+  goodsList: [{
+    goods: {
+      type: mongoose.ObjectId,
+      required: true,
+      ref: 'Goods'
+    },
+  }],
   ...baseModel
 })
 

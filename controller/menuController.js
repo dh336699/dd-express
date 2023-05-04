@@ -1,11 +1,22 @@
-const { isEmpty } = require('lodash')
-const { Menu, MenuGoods, Goods } = require('../model')
-const { HttpModel } = require('../model/httpModel')
+const {
+  isEmpty
+} = require('lodash')
+const {
+  Menu,
+  MenuGoods,
+  Goods
+} = require('../model')
+const {
+  HttpModel
+} = require('../model/httpModel')
 const httpModel = new HttpModel()
 
 exports.getMenuList = async (req, res) => {
   try {
-    const data = await Menu.find()
+    const data = await Menu.find().sort({
+      sort: 1
+    })
+    console.log(data);
     res.send(httpModel.success(data))
   } catch (error) {
     res.status(500).send(httpModel.error())
@@ -14,26 +25,74 @@ exports.getMenuList = async (req, res) => {
 
 exports.createMenu = async (req, res) => {
   try {
-    const { menuName } = req.body
-    const dbBack = await Menu.findOne({ menuName: req.body.menuName })
+    const {
+      menuName,
+      sort
+    } = req.body
+    const dbBack = await Menu.findOne({
+      menuName: req.body.menuName,
+    })
     if (dbBack && dbBack.menuName) {
       res.status(200).send(httpModel.error('当前菜单已存在'))
       return
     } else {
-      const data = new Menu({ menuName })
+      const data = new Menu({
+        menuName,
+        sort
+      })
       await data.save()
       res.send(httpModel.success())
     }
-    
+
   } catch (error) {
     res.status(500).send(httpModel.error())
   }
 }
 
+exports.updateMenu = async (req, res) => {
+  try {
+    const {
+      _id,
+      menuName,
+      goodsList,
+      sort
+    } = req.body
+    console.log(id,
+      menuName,
+      goodsList,
+      sort);
+    await Menu.findByIdAndUpdate(_id, {
+      menuName,
+      goodsList,
+      sort
+    }, {
+      new: true
+    })
+
+    res.send(httpModel.success())
+  } catch (err) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
+exports.deleteMenu = async (req, res) => {
+  try {
+    const id = req.params.id
+    const data = await Menu.findById(id)
+    await data.remove()
+    res.send(httpModel.success())
+  } catch (err) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
+
 exports.getMenuGoods = async (req, res) => {
   try {
     const id = req.params.id
-    const data = await MenuGoods.find({ menuId: id })
+    const data = await MenuGoods.find({
+      menu: id
+    }).populate('goods')
     res.send(httpModel.success(data))
   } catch (error) {
     res.status(500).send(httpModel.error())
@@ -42,24 +101,36 @@ exports.getMenuGoods = async (req, res) => {
 
 
 exports.createMenuGoods = async (req, res) => {
- try {
-    const { menuName, menuId, goodsIdList } = req.body
-    const dbBack = await Menu.findOne({ menuName })
+  try {
+    const {
+      menuName,
+      menuId,
+      goodsIdList
+    } = req.body
+    const dbBack = await Menu.findOne({
+      menuName
+    })
     if (isEmpty(dbBack)) {
       console.log(dbBack);
       return res.status(500).send(httpModel.error('当前菜单已被删除'))
     }
-    const menuGoods = await MenuGoods.find({ menuId })
+    const menuGoods = await MenuGoods.find({
+      menuId
+    })
     if (!isEmpty(menuGoods)) {
       menuGoods.forEach(async item => await item.remove())
     }
 
     goodsIdList.forEach(async (item) => {
-      const bk = await new MenuGoods({ menuName, menuId, goodsId: item })
+      const bk = await new MenuGoods({
+        menuName,
+        menuId,
+        goods: item
+      })
       await bk.save()
     })
     res.send(httpModel.success())
-  } catch(error) {
+  } catch (error) {
     res.status(500).send(httpModel.error())
   }
 }
@@ -76,7 +147,9 @@ exports.getGoodsList = async (req, res) => {
 exports.createGoods = async (req, res) => {
   try {
     console.log(req.body);
-    const dbBack = await Goods.findOne({ name: req.body.name })
+    const dbBack = await Goods.findOne({
+      name: req.body.name
+    })
     console.log(dbBack);
     if (dbBack && dbBack.name) {
       return res.status(200).send(httpModel.error('当前商品已存在'))
@@ -85,7 +158,7 @@ exports.createGoods = async (req, res) => {
       await data.save()
       res.send(httpModel.success())
     }
-    
+
   } catch (error) {
     res.status(500).send(httpModel.error())
   }
@@ -94,7 +167,9 @@ exports.createGoods = async (req, res) => {
 exports.updateGoods = async (req, res) => {
   try {
     console.log(req.body);
-    await Goods.findByIdAndUpdate(req.body._id, req.body, { new: true })
+    await Goods.findByIdAndUpdate(req.body._id, req.body, {
+      new: true
+    })
     res.send(httpModel.success())
   } catch (error) {
     res.status(500).send(httpModel.error())
