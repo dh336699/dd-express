@@ -46,18 +46,23 @@ exports.wxLogin = async (req, res) => {
     let userInfo = await User.findOne({
       openId: data.openid
     })
+    let isAdmin, isManager
+    if (includes(adminList, data.openid) || userInfo.userName === 'super_admin336699') {
+      isAdmin = true
+    }
+    if (includes(managerList, data.openid) || userInfo.userName === 'super_manager336699') {
+      isManager = true
+    }
     if (!userInfo) {
       const userModel = new User({
-        openId: data.openid
+        openId: data.openid,
+        isAdmin,
+        isManager
       })
       userInfo = await userModel.save()
     }
-    if (includes(adminList, data.openid) || userInfo.userName === 'super_admin336699') {
-      userInfo.isAdmin = true
-    }
-    if (includes(managerList, data.openid) || userInfo.userName === 'super_manager336699') {
-      userInfo.isManager = true
-    }
+    userInfo.isAdmin = isAdmin
+    userInfo.isManager = isManager
     const token = await createToken(userInfo)
     res.send(httpModel.success(token))
   } catch (err) {
@@ -147,9 +152,9 @@ exports.getApplyList = async (req, res) => {
     if (userInfo.isAdmin || userInfo.isManager) {
       if (type === 'apply') {
         let dbBack = await User.find({
-          orderAuth: 'init'
+          orderAuth: 'apply'
         })
-        dbBack = dbBack.filter(item => !adminList.includes(item.openId) && !managerList.includes(item.openId))
+        // dbBack = dbBack.filter(item => !adminList.includes(item.openId) && !managerList.includes(item.openId))
         res.send(httpModel.success(dbBack))
       } else {
         let dbBack = await User.find()

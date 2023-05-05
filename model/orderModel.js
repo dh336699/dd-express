@@ -22,6 +22,34 @@ const orderSchema = new mongoose.Schema({
       required: true
     },
   }],
+  type: {
+    type: String,
+    enum: ['ts', 'order'],
+    required: true
+  },
+  tableNo: {
+    type: Number,
+    required: false
+  },
+  orderPerson: {
+    name: {
+      type: String,
+      required: false
+    },
+    address: {
+      type: String,
+      required: false
+    },
+    mobile: {
+      type: Number,
+      required: false
+    },
+  },
+  status: {
+    type: String,
+    enum: ['init', 'confirm'],
+    required: true
+  },
   total: {
     type: Number,
     required: true

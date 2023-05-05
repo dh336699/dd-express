@@ -111,7 +111,10 @@ exports.createOrder = async (req, res) => {
     } = req
     const {
       menu,
-      total
+      total,
+      type,
+      tableNo,
+      orderPerson
     } = req.body
     // 查询每一条商品的单价
 
@@ -120,8 +123,7 @@ exports.createOrder = async (req, res) => {
         minPrice
       } = await Goods.findById(item.goods);
       return {
-        goods: item.goods,
-        number: item.number,
+        ...item,
         price: minPrice
       }
     }))
@@ -137,7 +139,10 @@ exports.createOrder = async (req, res) => {
     const newOrder = await new Order({
       user: userInfo._id,
       menu: menuWithPrice,
-      total: totalPrice
+      total: totalPrice,
+      type,
+      tableNo,
+      orderPerson
     })
     await newOrder.save()
 
@@ -153,16 +158,35 @@ exports.createOrder = async (req, res) => {
 
 exports.getOrder = async (req, res) => {
   try {
-    const date = dayjs().isSame(dayjs(), 'day')
-    console.log(date);
-    let orders = await Order.find().populate(['menu.goods', 'user'])
-    orders = orders.map((order) => {
-      if (dayjs().isSame(order.createAt, 'day')) {
-        return order
-      }
-    })
+    const {
+      type
+    } = req.query
+    let orders = await Order.find().populate(['user', 'menu.goods'])
+    if (type === 'day') {
+      orders = orders.filter((order) => dayjs().isSame(order.createAt, 'day'))
+    } else if (type === 'month') {
+      orders = orders.filter((order) => dayjs().diff(dayjs(order.createAt), 'month', true))
+    } else if (type === 'year') {
+      orders = orders.filter((order) => dayjs().diff(dayjs(order.createAt), 'year', true))
+    } else if (type === 'all') {
+      orders = orders
+    }
     res.send(httpModel.success(orders))
   } catch (error) {
-res.status(500).send(httpModel.error())
+    res.status(500).send(httpModel.error())
+  }
+}
+
+exports.getMyOrders = async (req, res) => {
+  try {
+    const {
+      userInfo
+    } = req;
+    const orders = await Order.find({
+      user: userInfo._id
+    }).populate(['menu.goods', 'user'])
+    res.send(httpModel.success(orders))
+  } catch (error) {
+    res.status(500).send(httpModel.error())
   }
 }
