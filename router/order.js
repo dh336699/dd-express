@@ -12,4 +12,5 @@ router
   .put('/car', verifyToken(), orderController.updateShopCar)
   .delete('/car', verifyToken(), orderController.deleteShopCar)
   .post('/confirm', verifyToken(), orderController.createOrder)
+  .get('/order', verifyToken(), orderController.getOrder)
 module.exports = router

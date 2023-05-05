@@ -16,7 +16,7 @@ app.use(cors())
 app.use(morgan('dev'))
 app.use('/api/v1', router)
 
-const PORT = process.env.PORT || 8081
+const PORT = process.env.PORT || 3000
 
 // // 挂载路由
 // app.use('/api', router)

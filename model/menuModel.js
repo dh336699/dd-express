@@ -7,11 +7,9 @@ const menuSchema = new mongoose.Schema({
     required: true,
   },
   goodsList: [{
-    goods: {
-      type: mongoose.ObjectId,
-      required: false,
-      ref: 'Goods'
-    },
+    type: mongoose.ObjectId,
+    required: false,
+    ref: 'Goods',
   }],
   sort: {
     type: Number,

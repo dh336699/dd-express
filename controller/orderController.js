@@ -1,6 +1,7 @@
 const {
   isEmpty
 } = require('lodash')
+const dayjs = require('dayjs')
 const {
   ShopCar,
   Order,
@@ -147,5 +148,21 @@ exports.createOrder = async (req, res) => {
     res.send(httpModel.success())
   } catch (err) {
     res.status(500).send(httpModel.error())
+  }
+}
+
+exports.getOrder = async (req, res) => {
+  try {
+    const date = dayjs().isSame(dayjs(), 'day')
+    console.log(date);
+    let orders = await Order.find().populate(['menu.goods', 'user'])
+    orders = orders.map((order) => {
+      if (dayjs().isSame(order.createAt, 'day')) {
+        return order
+      }
+    })
+    res.send(httpModel.success(orders))
+  } catch (error) {
+res.status(500).send(httpModel.error())
   }
 }

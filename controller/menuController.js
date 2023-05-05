@@ -13,7 +13,7 @@ const httpModel = new HttpModel()
 
 exports.getMenuList = async (req, res) => {
   try {
-    const data = await Menu.find().sort({
+    let data = await Menu.find().populate('goodsList').sort({
       sort: 1
     })
     console.log(data);
@@ -57,10 +57,6 @@ exports.updateMenu = async (req, res) => {
       goodsList,
       sort
     } = req.body
-    console.log(id,
-      menuName,
-      goodsList,
-      sort);
     await Menu.findByIdAndUpdate(_id, {
       menuName,
       goodsList,
