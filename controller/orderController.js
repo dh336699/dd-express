@@ -161,16 +161,19 @@ exports.getOrder = async (req, res) => {
     const {
       type
     } = req.query
-    let orders = await Order.find().populate(['user', 'menu.goods'])
+    
+    let startOfDay
+    const endOfDay = dayjs().endOf('day')
     if (type === 'day') {
-      orders = orders.filter((order) => dayjs().isSame(order.createAt, 'day'))
+      startOfDay = dayjs().startOf('day');
     } else if (type === 'month') {
-      orders = orders.filter((order) => dayjs().diff(dayjs(order.createAt), 'month', true))
+      startOfDay = dayjs().subtract(1, 'months').startOf('day');
     } else if (type === 'year') {
-      orders = orders.filter((order) => dayjs().diff(dayjs(order.createAt), 'year', true))
-    } else if (type === 'all') {
-      orders = orders
+      startOfDay = dayjs().subtract(12, 'months').startOf('day');
     }
+   
+    let orders = await Order.find({ createAt: { $gte: startOfDay, $lt: endOfDay } }).populate(['user', 'menu.goods']);
+    console.log(orders);
     res.send(httpModel.success(orders))
   } catch (error) {
     res.status(500).send(httpModel.error())
