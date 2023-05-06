@@ -1,9 +1,12 @@
-const express = require('express')
-const cors = require('cors') // 跨域中间件
-const morgan = require('morgan') // 日志中间件
+const express = require('express');
+const http = require('http');
 const router = require('./router')
+const middlewares = require('./middlewares');
+const io = require('./websocket'); // 引入 WebSocket 相关代码
 
-const app = express()
+const app = express();
+const httpServer = http.createServer(app);
+io.attach(httpServer); // 将 WebSocket 附加到 HTTP 服务器
 
 app.use(express.json({
   extended: false
@@ -11,25 +14,12 @@ app.use(express.json({
 app.use(express.urlencoded({
   extended: false
 }))
-app.use(express.static('public')) // 静态资源处理
-app.use(cors())
-app.use(morgan('dev'))
+app.use(express.static('public')); // 静态资源处理
+app.use(middlewares)
 app.use('/api/v1', router)
 
 const PORT = process.env.PORT || 3000
 
-// // 挂载路由
-// app.use('/api', router)
-
-// app.use((req, res) => {
-//   res.status(500).json({ error: '错误请求'})
-// }) 
-// app.use((err, req, res, next) => {
-//   res.status(500).send('service error')
-// })
-// 挂载统一处理服务端错误中间件
-// app.use(errorHandler())
-
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`)
 })

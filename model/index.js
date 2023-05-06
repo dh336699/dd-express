@@ -21,4 +21,5 @@ module.exports = {
   Goods: mongoose.model('Goods', require('./goodsModel')),
   ShopCar: mongoose.model('ShopCar', require('./shopCardModel')),
   Order: mongoose.model('Order', require('./orderModel')),
+  Table: mongoose.model('Table', require('./tableModel')),
 }
