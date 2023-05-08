@@ -10,7 +10,7 @@ router
   .get('/car/:id', verifyToken(), orderController.getShopCar)
   .post('/car', verifyToken(), orderController.optShopCar)
   .put('/car/', verifyToken(), orderController.updateShopCarTableNo)
-  .delete('/car', verifyToken(), orderController.deleteShopCar)
+  .delete('/car/:tableNo', verifyToken(), orderController.deleteShopCar)
   .post('/confirm', verifyToken(), orderController.createOrder)
   .get('/order', verifyToken(), orderController.getOrder)
   .get('/mine', verifyToken(), orderController.getMyOrders)

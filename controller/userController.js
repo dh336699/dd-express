@@ -120,6 +120,7 @@ exports.addAddress = async (req, res) => {
 exports.updateAddress = async (req, res) => {
   try {
     const id = req.body._id
+    await Address.updateMany({ default: true }, { $set: { default: false } })
     await Address.findByIdAndUpdate(id, req.body, {
       new: true
     })

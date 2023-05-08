@@ -209,6 +209,7 @@ exports.deleteShopCar = async (req, res) => {
     const {
       tableNo
     } = req.params
+    console.log(tableNo);
     const dbBack = await ShopCar.deleteOne({
       tableNo,
     })
@@ -229,7 +230,7 @@ exports.createOrder = async (req, res) => {
       total,
       type,
       tableNo,
-      orderPerson,
+      address,
       remark
     } = req.body
 
@@ -259,24 +260,34 @@ exports.createOrder = async (req, res) => {
       total: totalPrice,
       type,
       tableNo,
-      orderPerson,
+      address,
       remark
     })
     const newOrder = await dbBack.save()
 
-    await Table.updateOne({
-      tableNo
-    }, {
-      $addToSet: {
-        orderList: newOrder._id
-      },
-      $set: {
-        status: 'serving'
-      }
-    })
-    await ShopCar.deleteMany({
-      tableNo,
-    })
+    const tableBack = await Table.findOne({ tableNo })
+    if (!isEmpty(tableBack)) {
+      await Table.updateOne({
+        tableNo
+      }, {
+        $addToSet: {
+          orderList: newOrder._id
+        },
+        $set: {
+          status: 'serving'
+        }
+      })
+    }
+    if (tableNo) {
+      await ShopCar.deleteOne({
+        tableNo
+      })
+    } else {
+      await ShopCar.deleteOne({
+        tableNo: userInfo._id
+      })
+    }
+    
     io.emit('update')
 
     res.send(httpModel.success())
