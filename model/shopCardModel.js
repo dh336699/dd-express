@@ -31,7 +31,7 @@ const shopCarSchema = new mongoose.Schema({
     required: true
   },
   tableNo: {
-    type: Number,
+    type: mongoose.Mixed,
     required: true,
   },
   ...baseModel

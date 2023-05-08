@@ -28,27 +28,18 @@ const orderSchema = new mongoose.Schema({
     required: true
   },
   tableNo: {
-    type: Number,
+    type: mongoose.Mixed,
     required: false
   },
-  orderPerson: {
-    name: {
-      type: String,
-      required: false
-    },
-    address: {
-      type: String,
-      required: false
-    },
-    mobile: {
-      type: Number,
-      required: false
-    },
+  address: {
+    type: mongoose.ObjectId,
+    required: true,
+    ref: 'Address'
   },
   status: {
     type: String,
     enum: ['init', 'confirm'],
-    required: true
+    required: false
   },
   total: {
     type: Number,

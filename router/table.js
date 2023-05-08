@@ -9,6 +9,7 @@ const {
 router
   .get('/table', verifyToken(), tableController.getTableList)
   .post('/table', verifyToken(), tableController.createTable)
-  .put('/scanQRCode', verifyToken(), tableController.updateTable)
+  .put('/table', verifyToken(), tableController.updateTable)
+  .put('/scanQRCode', verifyToken(), tableController.updateTableStatus)
   .delete('/table/:id', verifyToken(), tableController.deleteTable)
 module.exports = router

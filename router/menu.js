@@ -11,11 +11,8 @@ router
   .post('/menuList', verifyToken(), validator.menu, menuController.createMenu)
   .put('/menuList', verifyToken(), validator.menu, menuController.updateMenu)
   .delete('/menuList/:id', verifyToken(), menuController.deleteMenu)
-
-  .get('/menuGoods/:id', verifyToken(), menuController.getMenuGoods)
-  .post('/menuGoods', verifyToken(), menuController.createMenuGoods)
   .get('/goodsList', verifyToken(), menuController.getGoodsList)
-  .post('/goodsList', verifyToken(), menuController.createGoods)
-  .put('/goodsList', verifyToken(), menuController.updateGoods)
+  .post('/goodsList', verifyToken(), validator.goods, menuController.createGoods)
+  .put('/goodsList', verifyToken(), validator.goods, menuController.updateGoods)
   .delete('/goodsList/:id', verifyToken(), menuController.deleteGoods)
 module.exports = router

@@ -3,7 +3,7 @@ const baseModel = require('./baseModel')
 
 const tableSchema = new mongoose.Schema({
   tableNo: {
-    type: Number || String,
+    type: Number,
     required: true,
   },
   status: {
@@ -12,13 +12,11 @@ const tableSchema = new mongoose.Schema({
     default: 'empty',
     required: false,
   },
-  orderList: [
-    {
-      type: mongoose.ObjectId,
-      required: false,
-      ref: 'Order',
-    }
-  ],
+  orderList: [{
+    type: mongoose.ObjectId,
+    required: false,
+    ref: 'Order',
+  }],
   ...baseModel
 })
 

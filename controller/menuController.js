@@ -81,55 +81,6 @@ exports.deleteMenu = async (req, res) => {
   }
 }
 
-
-exports.getMenuGoods = async (req, res) => {
-  try {
-    const id = req.params.id
-    const data = await MenuGoods.find({
-      menu: id
-    }).populate('goods')
-    res.send(httpModel.success(data))
-  } catch (error) {
-    res.status(500).send(httpModel.error())
-  }
-}
-
-
-exports.createMenuGoods = async (req, res) => {
-  try {
-    const {
-      menuName,
-      menuId,
-      goodsIdList
-    } = req.body
-    const dbBack = await Menu.findOne({
-      menuName
-    })
-    if (isEmpty(dbBack)) {
-      console.log(dbBack);
-      return res.status(500).send(httpModel.error('当前菜单已被删除'))
-    }
-    const menuGoods = await MenuGoods.find({
-      menuId
-    })
-    if (!isEmpty(menuGoods)) {
-      menuGoods.forEach(async item => await item.remove())
-    }
-
-    goodsIdList.forEach(async (item) => {
-      const bk = await new MenuGoods({
-        menuName,
-        menuId,
-        goods: item
-      })
-      await bk.save()
-    })
-    res.send(httpModel.success())
-  } catch (error) {
-    res.status(500).send(httpModel.error())
-  }
-}
-
 exports.getGoodsList = async (req, res) => {
   try {
     const data = await Goods.find()
@@ -141,11 +92,9 @@ exports.getGoodsList = async (req, res) => {
 
 exports.createGoods = async (req, res) => {
   try {
-    console.log(req.body);
     const dbBack = await Goods.findOne({
       name: req.body.name
     })
-    console.log(dbBack);
     if (dbBack && dbBack.name) {
       return res.status(200).send(httpModel.error('当前商品已存在'))
     } else {

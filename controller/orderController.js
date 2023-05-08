@@ -1,5 +1,7 @@
 const {
-  isEmpty, includes
+  isEmpty,
+  includes,
+  isNumber
 } = require('lodash')
 const dayjs = require('dayjs')
 const {
@@ -89,7 +91,7 @@ exports.optShopCar = async (req, res) => {
       number: Number(number),
       price: minPrice
     }
-     // 新增购物车
+    // 新增购物车
     if (isEmpty(dbBack)) {
       const menu = [menuGoods]
       const data = await new ShopCar({
@@ -100,12 +102,21 @@ exports.optShopCar = async (req, res) => {
         tableNo
       })
       const newOrder = await data.save()
-      await Table.updateOne({ tableNo }, { $addToSet: { orderList: newOrder._id }})
+      console.log(newOrder);
+      if (isNumber(tableNo)) {
+        await Table.updateOne({
+          tableNo
+        }, {
+          $set: {
+            status: 'ordering'
+          }
+        })
+      }
       // io.emit('update')
       return res.send(httpModel.success())
     } else {
       // 更新购物车
-    let isInclude = false
+      let isInclude = false
       for (let i = 0; i < dbBack.menu.length; i++) {
         const item = dbBack.menu[i]
         if (item.goods.equals(goods)) {
@@ -127,8 +138,8 @@ exports.optShopCar = async (req, res) => {
         const total = dbBack.menu.reduce((acc = 0, item) => {
           return acc + item.price * item.number
         }, 0)
-    
-        await ShopCar.updateOne({
+
+        const back = await ShopCar.updateOne({
           tableNo,
         }, {
           $set: {
@@ -139,6 +150,7 @@ exports.optShopCar = async (req, res) => {
             user: userInfo._id
           }
         })
+
         io.emit('update')
       } else {
         //删除购物车
@@ -151,6 +163,47 @@ exports.optShopCar = async (req, res) => {
     res.status(500).send(httpModel.error())
   }
 }
+
+exports.updateShopCarTableNo = async (req, res) => {
+  try {
+    const {
+      oldTableNo,
+      newTableNo
+    } = req.body;
+    const dbBack = await ShopCar.findOne({
+      tableNo: oldTableNo
+    })
+    const personal = await ShopCar.findOne({
+      tableNo: newTableNo
+    })
+    if (isEmpty(dbBack)) {
+      return res.status(500).send(httpModel.error())
+    } else {
+      if (!isEmpty(personal)) {
+        await personal.remove()
+      }
+      await ShopCar.updateOne({
+        tableNo: oldTableNo
+      }, {
+        $set: {
+          tableNo: newTableNo
+        }
+      })
+
+      await Table.updateOne({
+        table: oldTableNo,
+      }, {
+        $set: {
+          status: 'init'
+        }
+      })
+    }
+    res.send(httpModel.success())
+  } catch (erro) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
 exports.deleteShopCar = async (req, res) => {
   try {
     const {
@@ -184,9 +237,10 @@ exports.createOrder = async (req, res) => {
     const menuWithPrice = await Promise.all(menu.map(async (item) => {
       const {
         minPrice
-      } = await Goods.findById(item.goods);
+      } = await Goods.findById(item.goods._id);
       return {
-        ...item,
+        goods: item.goods._id,
+        number: Number(item.number),
         price: minPrice
       }
     }))
@@ -199,7 +253,7 @@ exports.createOrder = async (req, res) => {
       return res.status(400).send(httpModel.error())
     }
     // 创建新订单时需要 清空购物车 更新餐桌信息
-    const newOrder = await new Order({
+    const dbBack = await new Order({
       user: userInfo._id,
       menu: menuWithPrice,
       total: totalPrice,
@@ -208,9 +262,18 @@ exports.createOrder = async (req, res) => {
       orderPerson,
       remark
     })
-    const dbBack = await newOrder.save()
+    const newOrder = await dbBack.save()
 
-    await Table.updateOne({ tableNo }, { $push: { orderList: newOrder._id }, $set: { status: 'serving' } })
+    await Table.updateOne({
+      tableNo
+    }, {
+      $addToSet: {
+        orderList: newOrder._id
+      },
+      $set: {
+        status: 'serving'
+      }
+    })
     await ShopCar.deleteMany({
       tableNo,
     })

@@ -9,7 +9,7 @@ const {
 router
   .get('/car/:id', verifyToken(), orderController.getShopCar)
   .post('/car', verifyToken(), orderController.optShopCar)
-  // .put('/car', verifyToken(), orderController.updateShopCar)
+  .put('/car/', verifyToken(), orderController.updateShopCarTableNo)
   .delete('/car', verifyToken(), orderController.deleteShopCar)
   .post('/confirm', verifyToken(), orderController.createOrder)
   .get('/order', verifyToken(), orderController.getOrder)

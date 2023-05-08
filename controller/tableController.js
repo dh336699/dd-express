@@ -15,7 +15,16 @@ exports.getTableList = async (req, res) => {
   try {
     let data = await Table.find().sort({
       tableNo: 1
-    }).populate('orderList')
+    }).populate({
+      path: 'orderList',
+      populate: [{
+          path: 'user'
+        },
+        {
+          path: 'menu'
+        }
+      ]
+    })
     console.log(data);
     res.send(httpModel.success(data))
   } catch (error) {
@@ -60,10 +69,36 @@ exports.updateTable = async (req, res) => {
       new: true
     })
     // 当扫码进入后分配房间，同一个桌子的用户进一个房间，后续购物车更新时，给所有用户发送通知
-    if (status === 'serving') {
+    if (status === 'ordering') {
       const socket = io.connect('/ws')
       socket.emit('joinRoom', tableNo)
     }
+    res.send(httpModel.success())
+  } catch (err) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
+exports.updateTableStatus = async (req, res) => {
+  try {
+    const {
+      tableNo,
+      status,
+    } = req.body
+    await Table.updateOne({
+      tableNo
+    }, {
+      $set: {
+        status
+      }
+    }, {
+      new: true
+    })
+    // 当扫码进入后分配房间，同一个桌子的用户进一个房间，后续购物车更新时，给所有用户发送通知
+    // if (status === 'ordering') {
+    //   const socket = io.connect('/ws')
+    //   socket.emit('joinRoom', tableNo)
+    // }
     res.send(httpModel.success())
   } catch (err) {
     res.status(500).send(httpModel.error())

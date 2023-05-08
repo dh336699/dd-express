@@ -4,11 +4,11 @@ const baseModel = require('./baseModel')
 const goodsSchema = new mongoose.Schema({
   originalPrice: {
     type: Number,
-    required: true,
+    required: false,
   },
   minPrice: {
     type: Number,
-    required: false,
+    required: true,
   },
   name: {
     type: String,
