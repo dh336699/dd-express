@@ -7,9 +7,9 @@ const {
 } = require('../util/jwt')
 
 router
-  .get('/car', verifyToken(), orderController.getShopCar)
-  .post('/car', verifyToken(), orderController.createShopCar)
-  .put('/car', verifyToken(), orderController.updateShopCar)
+  .get('/car/:id', verifyToken(), orderController.getShopCar)
+  .post('/car', verifyToken(), orderController.optShopCar)
+  // .put('/car', verifyToken(), orderController.updateShopCar)
   .delete('/car', verifyToken(), orderController.deleteShopCar)
   .post('/confirm', verifyToken(), orderController.createOrder)
   .get('/order', verifyToken(), orderController.getOrder)

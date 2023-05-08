@@ -15,7 +15,7 @@ exports.getTableList = async (req, res) => {
   try {
     let data = await Table.find().sort({
       tableNo: 1
-    })
+    }).populate('orderList')
     console.log(data);
     res.send(httpModel.success(data))
   } catch (error) {

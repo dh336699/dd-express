@@ -13,7 +13,7 @@ const menuSchema = new mongoose.Schema({
   }],
   sort: {
     type: Number,
-    required: false,
+    required: true,
   },
   ...baseModel
 })

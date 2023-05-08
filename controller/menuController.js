@@ -16,7 +16,6 @@ exports.getMenuList = async (req, res) => {
     let data = await Menu.find().populate('goodsList').sort({
       sort: 1
     })
-    console.log(data);
     res.send(httpModel.success(data))
   } catch (error) {
     res.status(500).send(httpModel.error())

@@ -5,4 +5,5 @@ const router = express.Router()
 router.use('/user', require('./user'))
 router.use('/background', require('./menu'))
 router.use('/order', require('./order'))
+router.use('/tables', require('./table'))
 module.exports = router
