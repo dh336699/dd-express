@@ -102,7 +102,6 @@ exports.optShopCar = async (req, res) => {
         tableNo
       })
       const newOrder = await data.save()
-      console.log(newOrder);
       if (isNumber(tableNo)) {
         await Table.updateOne({
           tableNo
@@ -209,7 +208,6 @@ exports.deleteShopCar = async (req, res) => {
     const {
       tableNo
     } = req.params
-    console.log(tableNo);
     const dbBack = await ShopCar.deleteOne({
       tableNo,
     })
@@ -264,8 +262,10 @@ exports.createOrder = async (req, res) => {
       remark,
     })
     const newOrder = await dbBack.save()
+    const tableBack = await Table.findOne({
+      tableNo
+    })
 
-    const tableBack = await Table.findOne({ tableNo })
     if (!isEmpty(tableBack)) {
       await Table.updateOne({
         tableNo
@@ -287,7 +287,7 @@ exports.createOrder = async (req, res) => {
         tableNo: userInfo._id
       })
     }
-    
+
     io.emit('update')
 
     res.send(httpModel.success())
@@ -302,8 +302,14 @@ exports.updateOrder = async (req, res) => {
       id,
       status
     } = req.body
-   
-    await Order.updateOne({ _id: id }, { $set: { status }})
+
+    await Order.updateOne({
+      _id: id
+    }, {
+      $set: {
+        status
+      }
+    })
     res.send(httpModel.success())
   } catch (err) {
     res.status(500).send(httpModel.error())
@@ -313,7 +319,9 @@ exports.updateOrder = async (req, res) => {
 exports.getOrder = async (req, res) => {
   try {
     const {
-      type
+      type,
+      limit,
+      page
     } = req.query
 
     let startOfDay
@@ -322,8 +330,8 @@ exports.getOrder = async (req, res) => {
       startOfDay = dayjs().startOf('day');
     } else if (type === 'month') {
       startOfDay = dayjs().subtract(1, 'months').startOf('day');
-    } else if (type === 'year') {
-      startOfDay = dayjs().subtract(12, 'months').startOf('day');
+    } else if (type === 'quarter') {
+      startOfDay = dayjs().subtract(3, 'months').startOf('day');
     }
 
     let orders = await Order.find({
@@ -331,7 +339,9 @@ exports.getOrder = async (req, res) => {
         $gte: startOfDay,
         $lt: endOfDay
       }
-    }).populate(['user', 'menu.goods', 'address']).sort({ createAt: -1 });
+    }).populate(['user', 'menu.goods', 'address']).sort({
+      createAt: -1
+    }).skip(Number(limit) * (Number(page) - 1)).limit(Number(limit))
     res.send(httpModel.success(orders))
   } catch (error) {
     res.status(500).send(httpModel.error())
@@ -345,7 +355,9 @@ exports.getMyOrders = async (req, res) => {
     } = req;
     const orders = await Order.find({
       user: userInfo._id
-    }).populate(['menu.goods', 'address']).sort({ createAt: -1 })
+    }).populate(['menu.goods', 'address']).sort({
+      createAt: -1
+    })
     res.send(httpModel.success(orders))
   } catch (error) {
     res.status(500).send(httpModel.error())

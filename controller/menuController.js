@@ -110,7 +110,6 @@ exports.createGoods = async (req, res) => {
 
 exports.updateGoods = async (req, res) => {
   try {
-    console.log(req.body);
     await Goods.findByIdAndUpdate(req.body._id, req.body, {
       new: true
     })
