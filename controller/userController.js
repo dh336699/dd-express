@@ -120,7 +120,13 @@ exports.addAddress = async (req, res) => {
 exports.updateAddress = async (req, res) => {
   try {
     const id = req.body._id
-    await Address.updateMany({ default: true }, { $set: { default: false } })
+    await Address.updateMany({
+      default: true
+    }, {
+      $set: {
+        default: false
+      }
+    })
     await Address.findByIdAndUpdate(id, req.body, {
       new: true
     })
@@ -148,7 +154,9 @@ exports.getApplyList = async (req, res) => {
       userInfo
     } = req
     const {
-      type
+      type,
+      limit,
+      page
     } = req.query
     if (userInfo.isAdmin || userInfo.isManager) {
       if (type === 'apply') {
@@ -158,8 +166,13 @@ exports.getApplyList = async (req, res) => {
         // dbBack = dbBack.filter(item => !adminList.includes(item.openId) && !managerList.includes(item.openId))
         res.send(httpModel.success(dbBack))
       } else {
-        let dbBack = await User.find()
-        dbBack = dbBack.filter(item => item.orderAuth === 'agree' || item.orderAuth === 'reject')
+        let dbBack = await User.aggregate([{
+          $match: {
+            orderAuth: {
+              $in: ['agree', 'reject']
+            }
+          }
+        }]).skip(Number(limit) * (Number(page) - 1)).limit(Number(limit))
         res.send(httpModel.success(dbBack))
       }
     } else {
