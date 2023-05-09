@@ -163,7 +163,6 @@ exports.getApplyList = async (req, res) => {
         let dbBack = await User.find({
           orderAuth: 'apply'
         })
-        // dbBack = dbBack.filter(item => !adminList.includes(item.openId) && !managerList.includes(item.openId))
         res.send(httpModel.success(dbBack))
       } else {
         let dbBack = await User.aggregate([{
