@@ -21,8 +21,9 @@ exports.getTableList = async (req, res) => {
           path: 'user'
         },
         {
-          path: 'menu'
-        }
+          path: 'menu',
+          populate: ['goods']
+        },
       ]
     })
     console.log(data);

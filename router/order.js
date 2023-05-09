@@ -14,4 +14,5 @@ router
   .post('/confirm', verifyToken(), orderController.createOrder)
   .get('/order', verifyToken(), orderController.getOrder)
   .get('/mine', verifyToken(), orderController.getMyOrders)
+  .put('/mine', verifyToken(), orderController.updateOrder)
 module.exports = router

@@ -38,7 +38,8 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['init', 'confirm'],
+    enum: ['init', 'confirm', 'cancel'],
+    default: 'init',
     required: false
   },
   total: {

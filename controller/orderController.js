@@ -261,7 +261,7 @@ exports.createOrder = async (req, res) => {
       type,
       tableNo,
       address,
-      remark
+      remark,
     })
     const newOrder = await dbBack.save()
 
@@ -296,6 +296,20 @@ exports.createOrder = async (req, res) => {
   }
 }
 
+exports.updateOrder = async (req, res) => {
+  try {
+    const {
+      id,
+      status
+    } = req.body
+   
+    await Order.updateOne({ _id: id }, { $set: { status }})
+    res.send(httpModel.success())
+  } catch (err) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
 exports.getOrder = async (req, res) => {
   try {
     const {
@@ -317,7 +331,7 @@ exports.getOrder = async (req, res) => {
         $gte: startOfDay,
         $lt: endOfDay
       }
-    }).populate(['user', 'menu.goods']);
+    }).populate(['user', 'menu.goods', 'address']).sort({ createAt: -1 });
     res.send(httpModel.success(orders))
   } catch (error) {
     res.status(500).send(httpModel.error())
@@ -331,7 +345,7 @@ exports.getMyOrders = async (req, res) => {
     } = req;
     const orders = await Order.find({
       user: userInfo._id
-    }).populate(['menu.goods', 'user'])
+    }).populate(['menu.goods', 'address']).sort({ createAt: -1 })
     res.send(httpModel.success(orders))
   } catch (error) {
     res.status(500).send(httpModel.error())
