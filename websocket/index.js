@@ -1,21 +1,21 @@
 // websocket.js
-const http = require("http");
+const https = require("https");
 const express = require('express')
 const socketIO = require('socket.io'); // 创建独立的 io 对象
 const fs = require('fs')
 
 const app = express();
 
-// var host = 'localhost';
+var host = 'localhost';
 
-// var options = {
-//   key: fs.readFileSync( './' + host + '.key' ),
-//   cert: fs.readFileSync( './' + host + '.cert' ),
-//   requestCert: false,
-//   rejectUnauthorized: false
-// };
+var options = {
+  key: fs.readFileSync('./' + host + '.key'),
+  cert: fs.readFileSync('./' + host + '.cert'),
+  requestCert: false,
+  rejectUnauthorized: false
+};
 
-const websocket = http.createServer(app);
+const websocket = https.createServer(options, app);
 
 const io = socketIO(websocket);
 
@@ -27,6 +27,12 @@ io.on('connect', socket => {
 
   console.log('WebSocket连接建立');
   // 处理加入房间的请求
+  socket.on('adminJoinRoom', () => {
+    // 将用户加入指定房间
+    socket.join('admin')
+    // 记录房间与客户端的映射关系
+    roomClients[socket.id] = 'admin'
+  })
   socket.on('joinRoom', roomNo => {
     // 将用户加入指定房间
     socket.join(roomNo)
@@ -39,6 +45,7 @@ io.on('connect', socket => {
     const roomNo = roomClients[socket.id];
     // 向当前房间内的所有用户发送购物车更新事件
     io.to(roomNo).emit('update')
+    io.to('admin').emit('update')
   })
 
   // 处理连接断开事件
