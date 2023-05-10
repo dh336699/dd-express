@@ -42,6 +42,10 @@ const orderSchema = new mongoose.Schema({
     default: 'init',
     required: false
   },
+  remark: {
+    type: String,
+    required: false
+  },
   total: {
     type: Number,
     required: true

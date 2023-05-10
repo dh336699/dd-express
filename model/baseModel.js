@@ -1,10 +1,12 @@
+const dayjs = require('dayjs')
+
 module.exports = {
   createAt: {
     type: Date,
-    default: Date.now()
+    default: dayjs()
   },
   updateAt: {
     type: Date,
-    default: Date.now()
+    default: dayjs()
   }
 }

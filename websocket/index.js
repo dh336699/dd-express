@@ -1,11 +1,31 @@
 // websocket.js
-const io = require('socket.io')(); // 创建独立的 io 对象
+const http = require("http");
+const express = require('express')
+const socketIO = require('socket.io'); // 创建独立的 io 对象
+const fs = require('fs')
+
+const app = express();
+
+// var host = 'localhost';
+
+// var options = {
+//   key: fs.readFileSync( './' + host + '.key' ),
+//   cert: fs.readFileSync( './' + host + '.cert' ),
+//   requestCert: false,
+//   rejectUnauthorized: false
+// };
+
+const websocket = http.createServer(app);
+
+const io = socketIO(websocket);
 
 // 存储房间与客户端的映射关系是为了在 WebSocket 连接断开时能够正确地清除映射关系。这样可以确保在用户离开房间或连接断开时，房间与客户端的映射关系被正确地清除，避免出现不必要的映射关系紊乱。
 const roomClients = {};
 
 // WebSocket 连接建立时的处理逻辑
 io.on('connect', socket => {
+
+  console.log('WebSocket连接建立');
   // 处理加入房间的请求
   socket.on('joinRoom', roomNo => {
     // 将用户加入指定房间
@@ -28,4 +48,4 @@ io.on('connect', socket => {
   });
 })
 
-module.exports = io
+module.exports = websocket

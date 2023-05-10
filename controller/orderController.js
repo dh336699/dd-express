@@ -31,43 +31,6 @@ exports.getShopCar = async (req, res) => {
   }
 }
 
-// exports.createShopCar = async (req, res) => {
-//   try {
-//     const {
-//       userInfo
-//     } = req
-//     const {
-//       menu
-//     } = req.body
-
-//     const menuWithPrice = await Promise.all(menu.map(async item => {
-//       const {
-//         minPrice
-//       } = await Goods.findById(item.goods)
-
-//       return {
-//         ...item,
-//         price: minPrice
-//       }
-//     }))
-
-//     const total = menuWithPrice.reduce((acc = 0, item) => {
-//       return acc + item.price * item.number
-//     }, 0)
-
-//     const data = await new ShopCar({
-//       ...req.body,
-//       menu: menuWithPrice,
-//       total,
-//       user: [userInfo._id]
-//     })
-//     await data.save()
-//     io.emit('update')
-//     res.send(httpModel.success())
-//   } catch (err) {
-//     res.status(500).send(httpModel.error())
-//   }
-// }
 exports.optShopCar = async (req, res) => {
   try {
     const {
@@ -78,7 +41,7 @@ exports.optShopCar = async (req, res) => {
       number,
       name,
       tableNo,
-      type
+      type,
     } = req.body;
     const dbBack = await ShopCar.findOne({
       tableNo,
@@ -353,11 +316,12 @@ exports.getMyOrders = async (req, res) => {
     const {
       userInfo
     } = req;
+    const { limit, page } = req.query
     const orders = await Order.find({
       user: userInfo._id
     }).populate(['menu.goods', 'address']).sort({
       createAt: -1
-    })
+    }).skip(Number(limit) * (Number(page) - 1)).limit(Number(limit))
     res.send(httpModel.success(orders))
   } catch (error) {
     res.status(500).send(httpModel.error())

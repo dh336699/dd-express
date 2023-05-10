@@ -32,6 +32,7 @@ exports.wxLogin = async (req, res) => {
     const {
       code
     } = req.body;
+
     const {
       data
     } = await wxHttp.get({
@@ -43,14 +44,15 @@ exports.wxLogin = async (req, res) => {
         grant_type: 'authorization_code'
       }
     })
+
     let userInfo = await User.findOne({
       openId: data.openid
     })
     let isAdmin, isManager
-    if (includes(adminList, data.openid) || userInfo.userName === 'super_admin336699') {
+    if (includes(adminList, data.openid)) {
       isAdmin = true
     }
-    if (includes(managerList, data.openid) || userInfo.userName === 'super_manager336699') {
+    if (includes(managerList, data.openid)) {
       isManager = true
     }
     if (!userInfo) {
@@ -60,9 +62,15 @@ exports.wxLogin = async (req, res) => {
         isManager
       })
       userInfo = await userModel.save()
+    } else {
+      if (userInfo.userName === 'super_admin336699') {
+        isAdmin = true
+      }
+      if (userInfo.userName === 'super_manager336699') {
+        isManager = true
+      }
+      await User.updateOne({ openId: data.openid }, { $set: { isAdmin, isManager } })
     }
-    userInfo.isAdmin = isAdmin
-    userInfo.isManager = isManager
     const token = await createToken(userInfo)
     res.send(httpModel.success(token))
   } catch (err) {
