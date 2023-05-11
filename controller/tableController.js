@@ -7,7 +7,6 @@ const {
 const {
   HttpModel
 } = require('../model/httpModel')
-const io = require('../websocket');
 
 const httpModel = new HttpModel()
 

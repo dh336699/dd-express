@@ -3,10 +3,10 @@ const dayjs = require('dayjs')
 module.exports = {
   createAt: {
     type: Date,
-    default: dayjs()
+    default: () => dayjs()
   },
   updateAt: {
     type: Date,
-    default: dayjs()
+    ddefault: () => dayjs()
   }
 }

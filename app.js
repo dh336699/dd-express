@@ -67,7 +67,17 @@ io.on('connect', socket => {
 
   console.log('WebSocket连接建立');
   // 处理加入房间的请求
+  socket.on('adminJoinRoom', () => {
+    console.log('adminJoinRoom => ', 'admin');
+    // 将用户加入指定房间
+    socket.join('admin')
+    // 记录房间与客户端的映射关系
+    roomClients[socket.id] = 'admin'
+  })
+
+  // 处理加入房间的请求
   socket.on('joinRoom', roomNo => {
+    console.log('joinRoom => ', roomNo);
     // 将用户加入指定房间
     socket.join(roomNo)
     // 记录房间与客户端的映射关系
@@ -79,11 +89,13 @@ io.on('connect', socket => {
     const roomNo = roomClients[socket.id];
     // 向当前房间内的所有用户发送购物车更新事件
     io.to(roomNo).emit('update')
+    io.to('admin').emit('update')
   })
 
   // 处理连接断开事件
   socket.on('disconnect', () => {
     // 在连接断开时清除房间与客户端的映射关系
+    console.log(roomClients[socket.id] + '断开链接');
     delete roomClients[socket.id];
   });
 })
@@ -91,5 +103,5 @@ io.on('connect', socket => {
 const PORT = process.env.PORT || 443 || 3000
 
 httpServer.listen(PORT, () => {
-  console.log(`Server is running at http://localhost:${3000}`)
+  console.log(`Server is running at https://localhost:${PORT}`)
 })
