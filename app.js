@@ -2,7 +2,8 @@ const express = require('express');
 const fs = require('fs')
 const router = require('./router')
 
-const https = require("https");
+// const https = require("https");
+const http = require("http");
 const socketIO = require('socket.io');
 
 const app = express();
@@ -16,46 +17,17 @@ app.use(express.urlencoded({
 app.use(express.static('public')); // 静态资源处理
 app.use('/api/v1', router)
 
-// Websocket连接 Input you domain name here.
+// var host = 'localhost';
 
 // var options = {
-//   key: fs.readFileSync( './' + host + '.key' ),
-//   cert: fs.readFileSync( './' + host + '.cert' ),
+//   key: fs.readFileSync('./' + host + '.key'),
+//   cert: fs.readFileSync('./' + host + '.cert'),
 //   requestCert: false,
 //   rejectUnauthorized: false
 // };
 
-// const server = http.createServer(app);
-
-// const io = socketIO(server);
-
-// io.on('connect', (socket) => {
-//   console.log('WebSocket连接建立');
-
-//   socket.on('joinRoom', (roomNo) => {
-//     console.log(`加入房间: ${roomNo}`);
-//     socket.join(roomNo);
-//   });
-
-//   socket.on('message', (data) => {
-//     console.log(`接收到消息: ${data}`);
-//     // 处理接收到的消息逻辑
-//   });
-
-//   socket.on('disconnect', () => {
-//     console.log('WebSocket连接断开');
-//   });
-// });
-var host = 'localhost';
-
-var options = {
-  key: fs.readFileSync('./' + host + '.key'),
-  cert: fs.readFileSync('./' + host + '.cert'),
-  requestCert: false,
-  rejectUnauthorized: false
-};
-
-const httpServer = https.createServer(options, app);
+// const httpServer = https.createServer(options, app);
+const httpServer = http.createServer(app);
 
 const io = socketIO(httpServer);
 
@@ -100,7 +72,7 @@ io.on('connect', socket => {
   });
 })
 
-const PORT = process.env.PORT || 443 || 3000
+const PORT = process.env.PORT || 3000 || 443
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running at https://localhost:${PORT}`)
