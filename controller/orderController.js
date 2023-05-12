@@ -284,9 +284,9 @@ exports.getOrder = async (req, res) => {
     const {
       type,
       limit,
-      page
+      page,
+      orderType
     } = req.query
-
     let startOfDay
     const endOfDay = dayjs().endOf('day')
     if (type === 'day') {
@@ -297,12 +297,18 @@ exports.getOrder = async (req, res) => {
       startOfDay = dayjs().subtract(3, 'months').startOf('day');
     }
 
-    let orders = await Order.find({
+    let query = {
       createAt: {
         $gte: startOfDay,
         $lt: endOfDay
       }
-    }).populate(['user', 'menu.goods', 'address']).sort({
+    };
+    
+    if (orderType !== "all") {
+      query.type = orderType;
+    }
+
+    let orders = await Order.find(query).populate(['user', 'menu.goods', 'address']).sort({
       createAt: -1
     }).skip(Number(limit) * (Number(page) - 1)).limit(Number(limit))
     res.send(httpModel.success(orders))
