@@ -332,3 +332,50 @@ exports.getMyOrders = async (req, res) => {
     res.status(500).send(httpModel.error())
   }
 }
+
+exports.getAllOrderMoney = async (req, res) => {
+  const { type, orderType } = req.query
+  let startOfDay
+  const endOfDay = dayjs().endOf('day').toDate()
+  if (type === 'day') {
+    startOfDay = dayjs().startOf('day').toDate();
+  } else if (type === 'month') {
+    startOfDay = dayjs().subtract(1, 'months').startOf('day').toDate();
+  } else if (type === 'quarter') {
+    startOfDay = dayjs().subtract(3, 'months').startOf('day').toDate();
+  }
+
+  let query = {
+    createAt: {
+      $gte: startOfDay,
+      $lt: endOfDay
+    },
+    status: 'confirm'
+  };
+  if (orderType !== "all") {
+    query.type = orderType;
+  }
+  try {
+    const data = await Order.aggregate([
+      {
+        $match: query
+      },
+      {
+        $group: {
+          _id: '$type',
+          totalMoney: { $sum: '$total' }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          type: "$_id",
+          totalMoney: 1
+        }
+      }
+    ])
+    res.send(httpModel.success(data))
+  } catch (error) {
+    res.status(500).send(httpModel.error())
+  }
+}

@@ -13,6 +13,7 @@ router
   .delete('/car/:tableNo', verifyToken(), orderController.deleteShopCar)
   .post('/confirm', verifyToken(), orderController.createOrder)
   .get('/order', verifyToken(), orderController.getOrder)
+  .get('/getAllOrderMoney', verifyToken(), orderController.getAllOrderMoney)
   .get('/mine', verifyToken(), orderController.getMyOrders)
   .put('/mine', verifyToken(), orderController.updateOrder)
 module.exports = router
