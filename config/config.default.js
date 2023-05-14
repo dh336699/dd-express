@@ -17,3 +17,11 @@ module.exports.redisClient = {
 module.exports.adminList = ['oQ2j10BWjpcRICmxMfdXdDJFKg4Y']
 
 module.exports.managerList = []
+
+module.exports.access_token = ''
+
+module.exports.appid = 'wx3b501070e74761c3'
+
+module.exports.secret = '3f9a7309eb9cbe421c9089e68ea34839'
+
+module.exports.qrPath = '/pages/index/index'

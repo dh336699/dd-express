@@ -3,7 +3,6 @@ const {
 } = require('lodash')
 const {
   Menu,
-  MenuGoods,
   Goods
 } = require('../model')
 const {

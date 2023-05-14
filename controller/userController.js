@@ -24,6 +24,7 @@ const {
   adminList,
   managerList
 } = require('../config/config.default.js')
+const { appid, secret } = require('../config/config.default')
 const httpModel = new HttpModel()
 const rename = promisify(fs.rename)
 
@@ -38,8 +39,8 @@ exports.wxLogin = async (req, res) => {
     } = await wxHttp.get({
       url: '/sns/jscode2session',
       params: {
-        appid: 'wx3b501070e74761c3',
-        secret: '3f9a7309eb9cbe421c9089e68ea34839',
+        appid,
+        secret,
         js_code: code,
         grant_type: 'authorization_code'
       }

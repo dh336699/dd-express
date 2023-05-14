@@ -7,6 +7,12 @@ const {
 const {
   HttpModel
 } = require('../model/httpModel')
+const {
+  wxHttp
+} = require("../util/http")
+const path = require('path');
+const fs = require('fs');
+let { access_token, appid, secret, qrPath } = require('../config/config.default')
 
 const httpModel = new HttpModel()
 
@@ -97,6 +103,21 @@ exports.updateTableStatus = async (req, res) => {
   }
 }
 
+exports.createTableQr = async (req, res) => {
+  try {
+    const { tableNo } = req.query
+
+  if (!access_token) {
+    const {data} = await wxHttp.get({url: '/cgi-bin/token', params: { grant_type: 'client_credential', appid, secret }})
+    access_token = data.access_token
+  }
+    const qrcode = await wxHttp.post({url: `/cgi-bin/wxaapp/createwxaqrcode?access_token=${access_token}`,
+    params: { path: qrPath, scene: { tableNo } }, responseType: 'stream' })
+    qrcode.pipe(fs.createWriteStream('qrcode.png'))
+  } catch (error) {
+    res.status(500).send(httpModel.error())
+  }
+}
 
 exports.deleteTable = async (req, res) => {
   try {
@@ -105,6 +126,14 @@ exports.deleteTable = async (req, res) => {
     await data.remove()
     res.send(httpModel.success())
   } catch (err) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
+exports.getWxInfo = async (req, res) => {
+  try {
+    res.status(200).send(httpModel.success({ appid, secret }))
+  } catch (error) {
     res.status(500).send(httpModel.error())
   }
 }

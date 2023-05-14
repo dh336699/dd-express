@@ -75,5 +75,5 @@ io.on('connect', socket => {
 const PORT = process.env.PORT || 3000 || 443
 
 httpServer.listen(PORT, () => {
-  console.log(`Server is running at https://localhost:${PORT}`)
+  console.log(`Server is running at http://localhost:${PORT}`)
 })

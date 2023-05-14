@@ -16,6 +16,39 @@ const globSetting = {
     if (apiUrl && isString(apiUrl)) {
       config.url = `${apiUrl}${config.url}`;
     }
+
+    const params = config.params || {};
+    const data = config.data || false;
+
+    if (config.method?.toUpperCase() === 'GET') {
+      if (!isString(params)) {
+        config.params = params;
+      } else {
+        // 兼容restful风格
+        config.url = config.url + params;
+        config.params = undefined;
+      }
+    } else {
+      if (!isString(params)) {
+        if (
+          Reflect.has(config, 'data') &&
+          config.data &&
+          (Object.keys(config.data).length > 0 || config.data instanceof FormData)
+        ) {
+          config.data = data;
+          config.params = params;
+        } else {
+          // 非GET请求如果没有提供data，则将params视为data
+          config.data = params;
+          config.params = undefined;
+        }
+      } else {
+        // 兼容restful风格
+        config.url = config.url + params;
+        config.params = undefined;
+      }
+    }
+
     return config;
   },
   /**
