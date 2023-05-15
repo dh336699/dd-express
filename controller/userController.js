@@ -95,6 +95,21 @@ exports.updateUserInfo = async (req, res) => {
   }
 }
 
+exports.updateMemberInfo = async (req, res) => {
+  try {
+    const { oldUserInfo, newUserInfo } = req.body
+    const data = await User.findByIdAndUpdate({
+      userName: oldUserInfo.userName,
+      phone: oldUserInfo.phone
+    }, newUserInfo, {
+      new: true
+    })
+    res.send(httpModel.success(data))
+  } catch (err) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
 exports.getAddress = async (req, res) => {
   try {
     let {

@@ -14,6 +14,7 @@ router
   .post('/login', userController.wxLogin)
   .get('/info', verifyToken(), userController.getUserInfo)
   .put('/info', verifyToken(), userController.updateUserInfo)
+  .put('/member', verifyToken(), userController.updateMemberInfo)
   .get('/address', verifyToken(), userController.getAddress)
   .post('/address', verifyToken(), validator.register, userController.addAddress)
   .put('/address', verifyToken(), validator.register, userController.updateAddress)
