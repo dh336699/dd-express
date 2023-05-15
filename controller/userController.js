@@ -24,7 +24,10 @@ const {
   adminList,
   managerList
 } = require('../config/config.default.js')
-const { appid, secret } = require('../config/config.default')
+const {
+  appid,
+  secret
+} = require('../config/config.default')
 const httpModel = new HttpModel()
 const rename = promisify(fs.rename)
 
@@ -70,7 +73,14 @@ exports.wxLogin = async (req, res) => {
       if (userInfo.userName === 'super_manager336699') {
         isManager = true
       }
-      await User.updateOne({ openId: data.openid }, { $set: { isAdmin, isManager } })
+      await User.updateOne({
+        openId: data.openid
+      }, {
+        $set: {
+          isAdmin,
+          isManager
+        }
+      })
     }
     const token = await createToken(userInfo)
     res.send(httpModel.success(token))
@@ -97,9 +107,27 @@ exports.updateUserInfo = async (req, res) => {
 
 exports.updateMemberInfo = async (req, res) => {
   try {
-    const { oldUserInfo, newUserInfo } = req.body
-    const data = await User.findByIdAndUpdate({
-      userName: oldUserInfo.userName,
+    let {
+      oldUserInfo,
+      newUserInfo
+    } = req.body
+
+    if (newUserInfo.userName === 'super_admin336699') {
+      newUserInfo.isAdmin = true
+    } else {
+      newUserInfo.isAdmin = false
+    }
+    if (newUserInfo.userName === 'super_manager336699') {
+      newUserInfo.isManager = true
+    } else {
+      newUserInfo.isManager = false
+    }
+
+    for (const key in newUserInfo) {
+      if (!newUserInfo[key]) Reflect.deleteProperty(newUserInfo, key)
+    }
+
+    const data = await User.findOneAndUpdate({
       phone: oldUserInfo.phone
     }, newUserInfo, {
       new: true
