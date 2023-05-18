@@ -1,6 +1,7 @@
 const {
   isEmpty
 } = require('lodash')
+
 const {
   Menu,
   Goods
@@ -104,6 +105,22 @@ exports.createGoods = async (req, res) => {
 
   } catch (error) {
     res.status(500).send(httpModel.error())
+  }
+}
+
+exports.uploadGoodsPic = async (req, res) => {
+  const fileArr = req.file.originalname.split('.')
+  const fileType = fileArr[fileArr.length - 1]
+  try {
+    await rename('./public/' + req.file.filename,
+      './public/' + req.file.filename + '.' + fileType)
+    res.status(201).json({
+      filepath: req.file.filename + '.' + fileType
+    })
+  } catch (error) {
+    res.status(500).json({
+      error
+    })
   }
 }
 
