@@ -1,14 +1,29 @@
 const express = require('express')
-const multer = require('multer')
 const router = express.Router()
 const menuController = require('../controller/menuController')
 const validator = require('../middleware/validator/bgValidator')
 const {
   verifyToken
 } = require('../util/jwt')
-const upload = multer({
-  dest: '/public'
+const fs = require('fs')
+const {
+  promisify
+} = require('util')
+const rename = promisify(fs.rename)
+const multer = require('multer')
+// const upload = multer({
+//   dest: 'public/'
+// })
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './public/')
+  },
+  filename: async (req, file, cb) => {
+    cb(null, file.originalname)
+  }
 })
+
+const upload = multer({ storage })
 
 router
   .get('/menuList', verifyToken(), menuController.getMenuList)

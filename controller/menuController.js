@@ -1,6 +1,8 @@
+const fs = require('fs')
 const {
-  isEmpty
-} = require('lodash')
+  promisify
+} = require('util')
+const rename = promisify(fs.rename)
 
 const {
   Menu,
@@ -109,14 +111,11 @@ exports.createGoods = async (req, res) => {
 }
 
 exports.uploadGoodsPic = async (req, res) => {
-  const fileArr = req.file.originalname.split('.')
-  const fileType = fileArr[fileArr.length - 1]
+  console.log(req.file);
   try {
-    await rename('./public/' + req.file.filename,
-      './public/' + req.file.filename + '.' + fileType)
-    res.status(201).json({
-      filepath: req.file.filename + '.' + fileType
-    })
+    res.send(httpModel.success({
+      filepath: req.file.filename
+    }))
   } catch (error) {
     res.status(500).json({
       error
