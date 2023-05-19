@@ -5,11 +5,6 @@ const validator = require('../middleware/validator/bgValidator')
 const {
   verifyToken
 } = require('../util/jwt')
-const fs = require('fs')
-const {
-  promisify
-} = require('util')
-const rename = promisify(fs.rename)
 const multer = require('multer')
 // const upload = multer({
 //   dest: 'public/'
@@ -23,7 +18,9 @@ const storage = multer.diskStorage({
   }
 })
 
-const upload = multer({ storage })
+const upload = multer({
+  storage
+})
 
 router
   .get('/menuList', verifyToken(), menuController.getMenuList)
@@ -33,6 +30,7 @@ router
   .get('/goodsList', verifyToken(), menuController.getGoodsList)
   .post('/goodsList', verifyToken(), validator.goods, menuController.createGoods)
   .post('/uploadGoodsPic', verifyToken(), upload.single('goodsPic'), menuController.uploadGoodsPic)
+  .delete('/deleteGoodsPic/:fileName', verifyToken(), menuController.deleteGoodsPic)
   .put('/goodsList', verifyToken(), validator.goods, menuController.updateGoods)
   .delete('/goodsList/:id', verifyToken(), menuController.deleteGoods)
 module.exports = router

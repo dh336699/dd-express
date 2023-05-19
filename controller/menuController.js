@@ -111,7 +111,6 @@ exports.createGoods = async (req, res) => {
 }
 
 exports.uploadGoodsPic = async (req, res) => {
-  console.log(req.file);
   try {
     res.send(httpModel.success({
       filepath: req.file.filename
@@ -121,6 +120,22 @@ exports.uploadGoodsPic = async (req, res) => {
       error
     })
   }
+}
+
+exports.deleteGoodsPic = async (req, res) => {
+  const {
+    fileName
+  } = req.params
+  const filePath = 'public/' + fileName
+
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      res.status(500).json({
+        error: '删除文件时出错了。'
+      })
+    }
+    return res.send(httpModel.success())
+  })
 }
 
 exports.updateGoods = async (req, res) => {
