@@ -15,7 +15,11 @@ const httpModel = new HttpModel()
 
 exports.getMenuList = async (req, res) => {
   try {
-    let data = await Menu.find().populate('goodsList').sort({
+    let data = await Menu.find().populate({
+      path: 'goodsList',
+      match: { delete: false },
+      model: 'Goods'
+    }).sort({
       sort: 1
     })
     res.send(httpModel.success(data))
@@ -85,7 +89,7 @@ exports.deleteMenu = async (req, res) => {
 
 exports.getGoodsList = async (req, res) => {
   try {
-    const data = await Goods.find()
+    const data = await Goods.find({ delete: false })
     res.send(httpModel.success(data))
   } catch (error) {
     res.status(500).send(httpModel.error())
@@ -110,7 +114,7 @@ exports.createGoods = async (req, res) => {
   }
 }
 
-exports.uploadGoodsPic = async (req, res) => {
+exports.uploadImage = async (req, res) => {
   try {
     res.send(httpModel.success({
       filepath: req.file.filename
@@ -122,7 +126,7 @@ exports.uploadGoodsPic = async (req, res) => {
   }
 }
 
-exports.deleteGoodsPic = async (req, res) => {
+exports.deleteImage = async (req, res) => {
   const {
     fileName
   } = req.params
@@ -151,8 +155,7 @@ exports.updateGoods = async (req, res) => {
 exports.deleteGoods = async (req, res) => {
   try {
     const id = req.params.id
-    const data = await Goods.findById(id)
-    await data.remove()
+    await Goods.updateOne({ _id: id }, { $set: { delete: true }})
     res.send(httpModel.success())
   } catch (err) {
     res.status(500).send(httpModel.error())

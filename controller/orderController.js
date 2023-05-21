@@ -23,7 +23,12 @@ exports.getShopCar = async (req, res) => {
     } = req.params
     const dbBack = await ShopCar.findOne({
       tableNo: id,
-    }).populate('menu.goods')
+    }).populate({
+      path: 'menu.goods',
+      match: { delete: false },
+      model: 'Goods'
+    })
+    dbBack.menu = dbBack.menu.filter(item => item.goods)
     res.send(httpModel.success(dbBack))
   } catch (err) {
     res.status(500).send(httpModel.error())

@@ -29,8 +29,8 @@ router
   .delete('/menuList/:id', verifyToken(), menuController.deleteMenu)
   .get('/goodsList', verifyToken(), menuController.getGoodsList)
   .post('/goodsList', verifyToken(), validator.goods, menuController.createGoods)
-  .post('/uploadGoodsPic', verifyToken(), upload.single('goodsPic'), menuController.uploadGoodsPic)
-  .delete('/deleteGoodsPic/:fileName', verifyToken(), menuController.deleteGoodsPic)
+  .post('/uploadImage', verifyToken(), upload.single('goodsPic'), menuController.uploadImage)
+  .delete('/deleteImage/:fileName', verifyToken(), menuController.deleteImage)
   .put('/goodsList', verifyToken(), validator.goods, menuController.updateGoods)
   .delete('/goodsList/:id', verifyToken(), menuController.deleteGoods)
 module.exports = router

@@ -30,6 +30,10 @@ const goodsSchema = new mongoose.Schema({
     type: String,
     requried: false
   },
+  delete: {
+    type: Boolean,
+    default: false
+  },
   ...baseModel
 })
 
