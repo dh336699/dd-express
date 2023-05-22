@@ -121,7 +121,8 @@ exports.createGoods = async (req, res) => {
 exports.uploadImage = async (req, res) => {
   try {
     res.send(httpModel.success({
-      filepath: req.file.filename
+      filepath: req.file.filename,
+      type: 'goodsImage'
     }))
   } catch (error) {
     res.status(500).json({
@@ -134,7 +135,12 @@ exports.deleteImage = async (req, res) => {
   const {
     fileName
   } = req.params
-  const filePath = 'public/' + fileName
+  let filePath
+  if (req.headers.env === 'dev') {
+    filePath = 'public/dev/goods/' + fileName
+  } else {
+    filePath = 'public/prod/goods/' + fileName
+  }
 
   fs.unlink(filePath, (err) => {
     if (err) {

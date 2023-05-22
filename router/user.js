@@ -6,14 +6,30 @@ const {
   verifyToken
 } = require('../util/jwt')
 const multer = require('multer')
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (req.headers.env === 'dev') {
+      cb(null, './public/dev/avatar')
+    } else {
+      cb(null, './public/prod/avatar')
+    }
+  },
+  filename: async (req, file, cb) => {
+    cb(null, file.originalname)
+  }
+})
+
 const upload = multer({
-  dest: 'public/'
+  storage
 })
 
 router
   .post('/login', userController.wxLogin)
   .get('/info', verifyToken(), userController.getUserInfo)
   .put('/info', verifyToken(), userController.updateUserInfo)
+  .post('/uploadAvatar', verifyToken(), upload.single('avatar'), userController.uploadAvatar)
+  .delete('/deleteAvatar/:fileName', verifyToken(), userController.deleteAvatar)
   .put('/member', verifyToken(), userController.updateMemberInfo)
   .get('/address', verifyToken(), userController.getAddress)
   .post('/address', verifyToken(), validator.register, userController.addAddress)

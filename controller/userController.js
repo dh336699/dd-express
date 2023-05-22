@@ -4,7 +4,8 @@ const {
 } = require('util')
 const {
   omit,
-  includes
+  includes,
+  isEmpty
 } = require("lodash")
 
 const {
@@ -105,6 +106,41 @@ exports.updateUserInfo = async (req, res) => {
   }
 }
 
+exports.uploadAvatar = async (req, res) => {
+  try {
+    res.send(httpModel.success({
+      filepath: req.file.filename,
+      type: 'avatar'
+    }))
+  } catch (error) {
+    res.status(500).json({
+      error
+    })
+  }
+}
+
+exports.deleteAvatar = async (req, res) => {
+  const {
+    fileName
+  } = req.params
+  let filePath
+  if (req.headers.env === 'dev') {
+    filePath = 'public/dev/avatar/' + fileName
+  } else {
+    filePath = 'public/prod/avatar/' + fileName
+  }
+
+
+  fs.unlink(filePath, (err) => {
+    if (err) {
+      res.status(500).json({
+        error: '删除文件时出错了。'
+      })
+    }
+    return res.send(httpModel.success())
+  })
+}
+
 exports.updateMemberInfo = async (req, res) => {
   try {
     let {
@@ -124,7 +160,28 @@ exports.updateMemberInfo = async (req, res) => {
     }
 
     for (const key in newUserInfo) {
-      if (!newUserInfo[key]) Reflect.deleteProperty(newUserInfo, key)
+      if (key !== 'avatar' && !newUserInfo[key]) Reflect.deleteProperty(newUserInfo, key)
+    }
+
+    const oldInfo = await User.findOne({
+      phone: oldUserInfo.phone
+    })
+    if (!isEmpty(oldInfo) && oldInfo.avatar) {
+      fileName = oldInfo.avatar.slice(oldInfo.avatar.indexOf('avatar/') + 7);
+      let filePath
+      if (req.headers.env === 'dev') {
+        filePath = 'public/dev/avatar/' + fileName
+      } else {
+        filePath = 'public/prod/avatar/' + fileName
+      }
+
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          return res.status(500).json({
+            error: '删除旧头像时出错了。'
+          })
+        }
+      })
     }
 
     const data = await User.findOneAndUpdate({

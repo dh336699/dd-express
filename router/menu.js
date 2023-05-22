@@ -11,7 +11,11 @@ const multer = require('multer')
 // })
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './public/')
+    if (req.headers.env === 'dev') {
+      cb(null, './public/dev/goods')
+    } else {
+      cb(null, './public/prod/goods')
+    }
   },
   filename: async (req, file, cb) => {
     cb(null, file.originalname)
