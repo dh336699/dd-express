@@ -17,7 +17,9 @@ exports.getMenuList = async (req, res) => {
   try {
     let data = await Menu.find().populate({
       path: 'goodsList',
-      match: { delete: false },
+      match: {
+        delete: false
+      },
       model: 'Goods'
     }).sort({
       sort: 1
@@ -89,7 +91,9 @@ exports.deleteMenu = async (req, res) => {
 
 exports.getGoodsList = async (req, res) => {
   try {
-    const data = await Goods.find({ delete: false })
+    const data = await Goods.find({
+      delete: false
+    })
     res.send(httpModel.success(data))
   } catch (error) {
     res.status(500).send(httpModel.error())
@@ -155,7 +159,13 @@ exports.updateGoods = async (req, res) => {
 exports.deleteGoods = async (req, res) => {
   try {
     const id = req.params.id
-    await Goods.updateOne({ _id: id }, { $set: { delete: true }})
+    await Goods.updateOne({
+      _id: id
+    }, {
+      $set: {
+        delete: true
+      }
+    })
     res.send(httpModel.success())
   } catch (err) {
     res.status(500).send(httpModel.error())

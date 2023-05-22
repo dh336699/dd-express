@@ -12,7 +12,6 @@ const {
 const {
   HttpModel
 } = require('../model/httpModel')
-const io = require('../websocket');
 
 const httpModel = new HttpModel()
 
@@ -25,10 +24,16 @@ exports.getShopCar = async (req, res) => {
       tableNo: id,
     }).populate({
       path: 'menu.goods',
-      match: { delete: false },
+      match: {
+        delete: false
+      },
       model: 'Goods'
     })
-    dbBack.menu = dbBack.menu.filter(item => item.goods)
+    if (!isEmpty(dbBack)) {
+      // 过滤掉被删除的商品并重新计算总价
+      dbBack.menu = dbBack.menu.filter(item => item.goods)
+      dbBack.total = dbBack.menu.reduce((acc = 0, item) => acc + (item.price * item.number), 0)
+    }
     res.send(httpModel.success(dbBack))
   } catch (err) {
     res.status(500).send(httpModel.error())
@@ -49,7 +54,11 @@ exports.optShopCar = async (req, res) => {
     } = req.body;
     const dbBack = await ShopCar.findOne({
       tableNo,
+    }).populate({
+      path: 'menu.goods',
+      model: 'Goods'
     })
+
     const {
       minPrice
     } = await Goods.findById(goods)
@@ -85,7 +94,7 @@ exports.optShopCar = async (req, res) => {
       let isInclude = false
       for (let i = 0; i < dbBack.menu.length; i++) {
         const item = dbBack.menu[i]
-        if (item.goods.equals(goods)) {
+        if (item.goods._id.equals(goods)) {
           if (type === 'stepper') {
             item.number = number
           } else {
@@ -98,12 +107,10 @@ exports.optShopCar = async (req, res) => {
         dbBack.menu.push(menuGoods)
       }
       // 删除当前某个菜
-      dbBack.menu = dbBack.menu.filter(item => item.number > 0)
+      dbBack.menu = dbBack.menu.filter(item => !item.goods.delete && item.number > 0)
       // 更新购物车
       if (!isEmpty(dbBack.menu)) {
-        const total = dbBack.menu.reduce((acc = 0, item) => {
-          return acc + item.price * item.number
-        }, 0)
+        const total = dbBack.menu.reduce((acc = 0, item) => acc + item.price * item.number, 0)
 
         const back = await ShopCar.updateOne({
           tableNo,
@@ -117,11 +124,9 @@ exports.optShopCar = async (req, res) => {
           }
         })
 
-        io.emit('update')
       } else {
         //删除购物车
         await dbBack.remove()
-        io.emit('update')
       }
       res.send(httpModel.success())
     }
@@ -178,7 +183,6 @@ exports.deleteShopCar = async (req, res) => {
     const dbBack = await ShopCar.deleteOne({
       tableNo,
     })
-    io.emit('update')
     res.send(httpModel.success(dbBack))
   } catch (err) {
     res.status(500).send(httpModel.error())
@@ -246,16 +250,16 @@ exports.createOrder = async (req, res) => {
       })
     }
     if (tableNo) {
+      // 扫码点单
       await ShopCar.deleteOne({
         tableNo
       })
     } else {
+      // 自己打开小程序点单或者扫码外卖
       await ShopCar.deleteOne({
         tableNo: userInfo._id
       })
     }
-
-    io.emit('update')
 
     res.send(httpModel.success())
   } catch (err) {
@@ -307,7 +311,7 @@ exports.getOrder = async (req, res) => {
         $lt: endOfDay
       }
     };
-    
+
     if (orderType !== "all") {
       query.type = orderType;
     }
@@ -326,7 +330,10 @@ exports.getMyOrders = async (req, res) => {
     const {
       userInfo
     } = req;
-    const { limit, page } = req.query
+    const {
+      limit,
+      page
+    } = req.query
     const orders = await Order.find({
       user: userInfo._id
     }).populate(['menu.goods', 'address']).sort({
@@ -339,7 +346,10 @@ exports.getMyOrders = async (req, res) => {
 }
 
 exports.getAllOrderMoney = async (req, res) => {
-  const { type, orderType } = req.query
+  const {
+    type,
+    orderType
+  } = req.query
   let startOfDay
   const endOfDay = dayjs().endOf('day').toDate()
   if (type === 'day') {
@@ -361,14 +371,15 @@ exports.getAllOrderMoney = async (req, res) => {
     query.type = orderType;
   }
   try {
-    const data = await Order.aggregate([
-      {
+    const data = await Order.aggregate([{
         $match: query
       },
       {
         $group: {
           _id: '$type',
-          totalMoney: { $sum: '$total' }
+          totalMoney: {
+            $sum: '$total'
+          }
         }
       },
       {
