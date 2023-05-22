@@ -30,6 +30,7 @@ router
   .put('/info', verifyToken(), userController.updateUserInfo)
   .post('/uploadAvatar', verifyToken(), upload.single('avatar'), userController.uploadAvatar)
   .delete('/deleteAvatar/:fileName', verifyToken(), userController.deleteAvatar)
+  .get('/member/:phone', verifyToken(), userController.getMemberInfo)
   .put('/member', verifyToken(), userController.updateMemberInfo)
   .get('/address', verifyToken(), userController.getAddress)
   .post('/address', verifyToken(), validator.register, userController.addAddress)

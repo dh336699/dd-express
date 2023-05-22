@@ -141,6 +141,20 @@ exports.deleteAvatar = async (req, res) => {
   })
 }
 
+exports.getMemberInfo = async (req, res) => {
+  try {
+    const {
+      phone
+    } = req.params
+    const oldInfo = await User.findOne({
+      phone
+    })
+    res.send(httpModel.success(oldInfo))
+  } catch (error) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
 exports.updateMemberInfo = async (req, res) => {
   try {
     let {
