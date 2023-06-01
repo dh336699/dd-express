@@ -26,6 +26,10 @@ module.exports.secret = '3f9a7309eb9cbe421c9089e68ea34839'
 
 module.exports.qrPath = '/pages/index/index'
 
+const SecretId = ''
+
+const SecretKey = ''
+
 module.exports.uploadConfig = {
   secretId: '', // 固定密钥
   secretKey: '', // 固定密钥
