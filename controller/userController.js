@@ -180,8 +180,9 @@ exports.updateMemberInfo = async (req, res) => {
     const oldInfo = await User.findOne({
       phone: oldUserInfo.phone
     })
-    if (!isEmpty(oldInfo) && oldInfo.avatar) {
-      fileName = oldInfo.avatar.slice(oldInfo.avatar.indexOf('avatar/') + 7);
+    // 传入新头像时，并且旧头像有值时 才会去删除旧头像
+    if (oldUserInfo.avatar && newUserInfo.avatar) {
+      fileName = oldUserInfo.avatar.slice(oldUserInfo.avatar.indexOf('avatar/') + 7);
       let filePath
       if (req.headers.env === 'dev') {
         filePath = 'public/dev/avatar/' + fileName
@@ -190,13 +191,17 @@ exports.updateMemberInfo = async (req, res) => {
       }
 
       fs.unlink(filePath, (err) => {
-        if (err) {
-          return res.status(500).json({
-            error: '删除旧头像时出错了。'
-          })
-        }
+        if (err) {}
       })
     }
+    const keysToUpdate = Object.keys(newUserInfo); // 获取newUserInfo中所有字段的键
+
+    // 遍历键数组，检查字段值是否为空，并将空值字段从newUserInfo中删除
+    keysToUpdate.forEach(key => {
+      if (newUserInfo[key] === '' || newUserInfo[key] === null || newUserInfo[key] === undefined) {
+        delete newUserInfo[key]; // 从newUserInfo对象中删除空值字段
+      }
+    });
 
     const data = await User.findOneAndUpdate({
       phone: oldUserInfo.phone
