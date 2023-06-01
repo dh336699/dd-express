@@ -26,13 +26,9 @@ module.exports.secret = '3f9a7309eb9cbe421c9089e68ea34839'
 
 module.exports.qrPath = '/pages/index/index'
 
-const SecretId = 'AKIDhFXaNuOCxXsxpSd1zkH9qNgw0qSqvsWz'
-
-const SecretKey = 'NZZLsACzX0FH5fz3tnSuAAyWrxqUzWqu'
-
 module.exports.uploadConfig = {
-  secretId: SecretId, // 固定密钥
-  secretKey: SecretKey, // 固定密钥
+  secretId: '', // 固定密钥
+  secretKey: '', // 固定密钥
   proxy: '',
   host: 'sts.tencentcloudapi.com', // 域名，非必须，默认为 sts.tencentcloudapi.com
   // endpoint: 'sts.internal.tencentcloudapi.com', // 域名，非必须，与host二选一，默认为 sts.tencentcloudapi.com
