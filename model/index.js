@@ -11,7 +11,7 @@ main()
     console.log('mongo链接成功');
   })
   .catch(err => {
-    console.log('mongo链接失败');
+    console.log('mongo链接失败', err);
   })
 
 module.exports = {

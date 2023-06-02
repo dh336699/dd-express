@@ -5,7 +5,6 @@ const {
 const {
   omit,
   includes,
-  isEmpty
 } = require("lodash")
 
 const {
@@ -162,24 +161,6 @@ exports.updateMemberInfo = async (req, res) => {
       newUserInfo
     } = req.body
 
-    if (newUserInfo.userName === 'super_admin336699') {
-      newUserInfo.isAdmin = true
-    } else {
-      newUserInfo.isAdmin = false
-    }
-    if (newUserInfo.userName === 'super_manager336699') {
-      newUserInfo.isManager = true
-    } else {
-      newUserInfo.isManager = false
-    }
-
-    for (const key in newUserInfo) {
-      if (key !== 'avatar' && !newUserInfo[key]) Reflect.deleteProperty(newUserInfo, key)
-    }
-
-    const oldInfo = await User.findOne({
-      phone: oldUserInfo.phone
-    })
     // 传入新头像时，并且旧头像有值时 才会去删除旧头像
     if (oldUserInfo.avatar && newUserInfo.avatar) {
       fileName = oldUserInfo.avatar.slice(oldUserInfo.avatar.indexOf('avatar/') + 7);
@@ -198,7 +179,7 @@ exports.updateMemberInfo = async (req, res) => {
 
     // 遍历键数组，检查字段值是否为空，并将空值字段从newUserInfo中删除
     keysToUpdate.forEach(key => {
-      if (newUserInfo[key] === '' || newUserInfo[key] === null || newUserInfo[key] === undefined) {
+      if (newUserInfo[key] === '') {
         delete newUserInfo[key]; // 从newUserInfo对象中删除空值字段
       }
     });
