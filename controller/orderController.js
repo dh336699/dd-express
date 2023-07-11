@@ -202,7 +202,7 @@ exports.createOrder = async (req, res) => {
       address,
       remark
     } = req.body
-
+    console.log(tableNo);
     // 查询每一条商品的单价
     const menuWithPrice = await Promise.all(menu.map(async (item) => {
       const {
@@ -255,9 +255,13 @@ exports.createOrder = async (req, res) => {
         tableNo
       })
     } else {
+      console.log('delete');
       // 自己打开小程序点单或者扫码外卖
       await ShopCar.deleteOne({
         tableNo: userInfo._id
+      })
+      await ShopCar.deleteOne({
+        tableNo: userInfo.phone
       })
     }
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = require('./router')
-
+const cors = require('cors')
 // const https = require("https");
 const http = require("http");
 const socketIO = require('socket.io');
@@ -10,6 +10,7 @@ const app = express();
 app.use(express.json({
   extended: false
 }))
+app.use(cors())
 app.use(express.urlencoded({
   extended: false
 }))

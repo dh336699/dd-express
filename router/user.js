@@ -26,6 +26,7 @@ const upload = multer({
 
 router
   .post('/login', userController.wxLogin)
+  .post('/loginH5', userController.loginH5)
   .get('/info', verifyToken(), userController.getUserInfo)
   .put('/info', verifyToken(), userController.updateUserInfo)
   .post('/uploadAvatar', verifyToken(), upload.single('avatar'), userController.uploadAvatar)

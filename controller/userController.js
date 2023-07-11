@@ -6,7 +6,7 @@ const {
   omit,
   includes,
 } = require("lodash")
-
+const md5 = require('../util/md5')
 const {
   User,
   Address
@@ -84,6 +84,43 @@ exports.wxLogin = async (req, res) => {
     }
     const token = await createToken(userInfo)
     res.send(httpModel.success(token))
+  } catch (err) {
+    res.status(500).send(httpModel.error())
+  }
+}
+
+exports.loginH5 = async (req, res) => {
+  try {
+    const {
+      phone,
+      password
+    } = req.body;
+    let userInfo = await User.findOne({
+      phone
+    }).select('+password')
+    if (!userInfo) {
+      const userModel = new User({
+        openId: phone,
+        phone,
+        password
+      })
+      userInfo = await userModel.save()
+      const token = await createToken(userInfo)
+      res.send(httpModel.success({
+        ...omit(userInfo.toJSON(), 'password'),
+        token
+      }))
+    } else {
+      if (userInfo.password === md5(password) || userInfo.password === password) {
+        const token = await createToken(userInfo)
+        res.send(httpModel.success({
+          ...omit(userInfo.toJSON(), 'password'),
+          token
+        }))
+      } else {
+        res.status(500).send('账户或密码不正确')
+      }
+    }
   } catch (err) {
     res.status(500).send(httpModel.error())
   }
@@ -295,8 +332,14 @@ exports.getUserInfo = async (req, res) => {
   let {
     userInfo
   } = req
-  Reflect.deleteProperty(userInfo, 'openId')
-  res.send(httpModel.success(userInfo))
+  const user = await User.findById(userInfo._id)
+  const token = await createToken(user)
+  Reflect.deleteProperty(user, 'openId')
+  Reflect.deleteProperty(user, 'password')
+  res.send(httpModel.success({
+    ...user.toJSON(),
+    token
+  }))
 }
 
 // // 获取本人的粉丝列表

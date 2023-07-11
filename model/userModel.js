@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
   },
+  password: {
+    type: String,
+    set: value => md5(value),
+    select: false
+  },
   address: {
     type: String
   },
